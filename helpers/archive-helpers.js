@@ -104,7 +104,7 @@ exports.downloadUrls = function( arrayOfSites, callback ) {
       res.on('end', function(){
         fs.writeFile( path.join( paths.archivedSites, './' + site ), body, function( err, data ) {
           if( err ) throw new Error( 'Error in writing new site to archive' );
-          if ( callback ) data = callback( data );
+          if ( callback ) callback( site );
         } );
       } );
     } );
