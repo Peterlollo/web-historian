@@ -18,7 +18,9 @@ exports.serveAssets = function( res, asset, callback, contentType ) {
   
   fs.readFile( asset, function( err, data ) {
     if( err ) {
-      sendResponse( res, null, { statusCode: 500 } );
+      var options = {};
+      options.statusCode = 500;
+      sendResponse( res, null, options );
       // send a 500 response if we cannot load the file
       throw new Error( 'Could not read file in http-helpers.serveAssets' );
     }
@@ -40,8 +42,14 @@ exports.sendResponse = sendResponse = function ( res, data, options ) {
   var newHeaders = {};
   if( options.contentType ) newHeaders['Content-Type'] = options.contentType;
   _.defaults( newHeaders, headers );
+  console.log( options );
   res.writeHead( options.statusCode, newHeaders );
   res.end(data);
 };
 
+exports.send404 = function( res ) {
+    var options = {};
+    options.statusCode = 404;
+    sendResponse( res, '404! Not found', options );
+};
 // As you progress, keep thinking about what helper functions you can put here!
