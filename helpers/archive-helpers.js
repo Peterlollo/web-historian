@@ -39,9 +39,13 @@ exports.downloadSiteFile = function(callback) {
 exports.readListOfUrls = function( callback ) {
   //Take the object from download URLs
     return exports.downloadSiteFile(function(data) {
-      var sitesObj = JSON.parse( data );
+      var sitesObj;
+      var sitesArray = [];
+      if( data ) { 
+        sitesObj = JSON.parse( data );
     // convert into array
-      var sitesArray = Object.keys( sitesObj );
+        sitesArray = Object.keys( sitesObj );
+        }
       callback( sitesArray );
       return sitesArray;
     });
@@ -60,7 +64,8 @@ exports.isUrlInList = function(targetUrl, callback) {
 
 exports.addUrlToList = function(newUrl, callback) {    
   exports.downloadSiteFile(function(data) {
-    var current = JSON.parse( data );
+    var current = {};
+    if( data ) current = JSON.parse( data );
     current[newUrl] = false;
     current = JSON.stringify( current );
     fs.writeFile( paths.list, current, function(err, data) {
