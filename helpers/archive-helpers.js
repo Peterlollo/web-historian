@@ -9,7 +9,7 @@ var _ = require('underscore');
  * customize it in any way you wish.
  */
 
-exports.paths = {
+exports.paths = paths = {
   siteAssets: path.join(__dirname, '../web/public'),
   archivedSites: path.join(__dirname, '../archives/sites'),
   list: path.join(__dirname, '../archives/sites.txt')
@@ -24,18 +24,52 @@ exports.initialize = function(pathsObj) {
 
 // The following function names are provided to you to suggest how you might
 // modularize your code. Keep it clean!
+exports.downloadUrls = function() {};
 
-exports.readListOfUrls = function() {
+exports.downloadSitesFile = function() {
+  //read the file given at paths.list
+  fs.readFile( paths.list, function( err, data ) {
+    if( err ) {
+      throw new Error( 'Failed to read sites.txt' );
+    }
+    //Use JSON.parse and return the object
+    return JSON.parse( data );
+  } );
+
 };
 
-exports.isUrlInList = function() {
+exports.readListOfUrls = function( callback ) {
+  //Take the object from download URLs
+    fs.readFile( paths.list, 'utf-8', function( err, data ) {
+    if( err ) {
+      throw new Error( 'Failed to read sites.txt' );
+    }
+    var sitesObj = JSON.parse( data );
+    // convert into array
+    var sitesArray = Object.keys( sitesObj );
+    callback( sitesArray );
+  } );
+
+
+  //return an array containing the url items
 };
 
-exports.addUrlToList = function() {
+exports.isUrlInList = function(targetUrl) {
+  //read the url list and use _contains to check if targetURL is present
 };
 
-exports.isUrlArchived = function() {
+exports.addUrlToList = function(newUrl) {
+  //download URLs 
+  //append new key to object with false value
+  //stringify object
+  //rewrite sites.text with new stringified object
 };
 
-exports.downloadUrls = function() {
+exports.isUrlArchived = function(targetUrl) {
+  //downloadURLs 
+  //check whether targetURL is true or false
+};
+
+exports.downloadURL = function () {
+  //read a given site
 };
