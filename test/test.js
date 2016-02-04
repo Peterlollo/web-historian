@@ -80,7 +80,8 @@ describe("archive helpers", function(){
   describe("#readListOfUrls", function () {
     it("should read urls from sites.txt", function (done){
       var urlArray = ["example1.com", "example2.com"];
-      fs.writeFileSync(archive.paths.list, urlArray.join("\n"));
+      var urlObj = { 'example1.com': true, 'example2.com': false };
+      fs.writeFileSync(archive.paths.list, JSON.stringify( urlObj ) );
 
       archive.readListOfUrls(function(urls){
         expect(urls).to.deep.equal(urlArray);
