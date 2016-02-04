@@ -1,6 +1,8 @@
-var fs = require('fs');
-var path = require('path');
-var _ = require('underscore');
+var fs = require( 'fs' );
+var path = require( 'path' );
+var _ = require( 'underscore' );
+var http = require( 'http' );
+var urlParse = require( 'url' );
 
 /*
  * You will need to reuse the same paths many times over in the course of this sprint.
@@ -24,36 +26,28 @@ exports.initialize = function(pathsObj) {
 
 // The following function names are provided to you to suggest how you might
 // modularize your code. Keep it clean!
-exports.downloadUrls = function() {};
-
-exports.downloadSitesFile = function() {
-  //read the file given at paths.list
-  fs.readFile( paths.list, function( err, data ) {
+exports.downloadSiteFile = function(callback) {
+  fs.readFile( paths.list, 'utf-8', function( err, data ) {
     if( err ) {
       throw new Error( 'Failed to read sites.txt' );
     }
-    //Use JSON.parse and return the object
-    return JSON.parse( data );
+   callback( data );
   } );
-
 };
+
 
 exports.readListOfUrls = function( callback ) {
   //Take the object from download URLs
-    fs.readFile( paths.list, 'utf-8', function( err, data ) {
-    if( err ) {
-      throw new Error( 'Failed to read sites.txt' );
-    }
-    var sitesObj = JSON.parse( data );
+    return exports.downloadSiteFile(function(data) {
+      var sitesObj = JSON.parse( data );
     // convert into array
-    var sitesArray = Object.keys( sitesObj );
-    callback( sitesArray );
-  } );
-  //return an array containing the url items
+      var sitesArray = Object.keys( sitesObj );
+      callback( sitesArray );
+      return sitesArray;
+    });
 };
 
 exports.isUrlInList = function(targetUrl, callback) {
-  //read the url list and use _contains to check if targetURL is present
   var flipflop = function( target, array ) {
     var result = _.contains( array, target );
     if( callback ) {
@@ -61,22 +55,57 @@ exports.isUrlInList = function(targetUrl, callback) {
     }
     return result;
   };
-
   return exports.readListOfUrls( flipflop.bind( null, targetUrl ) );
 };
 
-exports.addUrlToList = function(newUrl) {
-  //download URLs 
-  //append new key to object with false value
-  //stringify object
-  //rewrite sites.text with new stringified object
+exports.addUrlToList = function(newUrl, callback) {    
+  exports.downloadSiteFile(function(data) {
+    var current = JSON.parse( data );
+    current[newUrl] = false;
+    current = JSON.stringify( current );
+    fs.writeFile( paths.list, current, function(err, data) {
+      if(err) throw new Error ('Failed to write new url to sites.txt');
+      if( callback ) data = callback( data );
+      return data;
+    });
+  });
 };
 
-exports.isUrlArchived = function(targetUrl) {
-  //downloadURLs 
+exports.isUrlArchived = function(targetUrl, callback) {
+  //downloadURLs
+  return exports.downloadSiteFile(function(data){
+    var sitesObject = JSON.parse( data );
+    var result = sitesObject[ targetUrl ];
+    callback( result );
+    return result;
+  });
   //check whether targetURL is true or false
 };
 
 exports.downloadURL = function () {
   //read a given site
+};
+
+exports.downloadUrls = function( arrayOfSites, callback ) {
+
+  var doTheThing = ( site ) => {
+    var httpSite = 'http://' + site;
+    http.get( httpSite, ( res ) => {
+      console.log( `Got response: ${res.statusCode}` );
+      var body = '';
+      res.on( 'data', function( chunk ) {
+        body += chunk;
+      } );
+      res.on('end', function(){
+        fs.writeFile( path.join( paths.archivedSites, './' + site ), body, function( err, data ) {
+          if( err ) throw new Error( 'Error in writing new site to archive' );
+          if ( callback ) data = callback( data );
+        } );
+      } );
+    } );
+  };
+
+  arrayOfSites.forEach( function( site ) {
+    doTheThing( site );
+  } );
 };
