@@ -93,7 +93,8 @@ describe("archive helpers", function(){
   describe("#isUrlInList", function () {
     it("should check if a url is in the list", function (done) {
       var urlArray = ["example1.com", "example2.com"];
-      fs.writeFileSync(archive.paths.list, urlArray.join("\n"));
+      var urlObj = { 'example1.com': true, 'example2.com': false };
+      fs.writeFileSync(archive.paths.list, JSON.stringify( urlObj ) );
 
       var counter = 0;
       var total = 2;
@@ -112,8 +113,9 @@ describe("archive helpers", function(){
 
   describe("#addUrlToList", function () {
     it("should add a url to the list", function (done) {
-      var urlArray = ["example1.com", "example2.com\n"];
-      fs.writeFileSync(archive.paths.list, urlArray.join("\n"));
+      var urlArray = ["example1.com", "example2.com"];
+      var urlObj = { 'example1.com': true, 'example2.com': false };
+      fs.writeFileSync(archive.paths.list, JSON.stringify( urlObj ) );
 
       archive.addUrlToList("someurl.com", function () {
         archive.isUrlInList("someurl.com", function (is) {
