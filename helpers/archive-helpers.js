@@ -49,13 +49,20 @@ exports.readListOfUrls = function( callback ) {
     var sitesArray = Object.keys( sitesObj );
     callback( sitesArray );
   } );
-
-
   //return an array containing the url items
 };
 
-exports.isUrlInList = function(targetUrl) {
+exports.isUrlInList = function(targetUrl, callback) {
   //read the url list and use _contains to check if targetURL is present
+  var flipflop = function( target, array ) {
+    var result = _.contains( array, target );
+    if( callback ) {
+      result = callback( result );
+    }
+    return result;
+  };
+
+  return exports.readListOfUrls( flipflop.bind( null, targetUrl ) );
 };
 
 exports.addUrlToList = function(newUrl) {
