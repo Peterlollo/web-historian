@@ -3,8 +3,6 @@
 var archive = require('/Volumes/student/webHistorian/helpers/archive-helpers');
 var fs = require( 'fs' );
 
-console.log( 'we so CRON right now');
-
 archive.downloadSiteFile( (data) => {
   var current = {};
   var siteArray = [];
