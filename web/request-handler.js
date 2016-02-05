@@ -30,9 +30,7 @@ exports.serveIndex = function (req, res) {
           archive.isUrlArchived( url, function ( isArchived ) {
             if( isArchived ) {
               // redirect to completed page
-              var options = {};
-              options.statusCode = 302;
-              utils.sendResponse( res, '/' + url, options );
+              utils.redirect( res, url );
             } else {
               serve( LOADING );
             }

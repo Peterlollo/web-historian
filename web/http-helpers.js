@@ -47,6 +47,15 @@ exports.sendResponse = sendResponse = function ( res, data, options ) {
   res.end(data);
 };
 
+exports.redirect = ( res, site, status ) => {
+  var status = status || 302;
+  var header = {
+    location: site
+  };
+  res.writeHead( status, header );
+  res.end();
+};
+
 exports.send404 = function( res ) {
     var options = {};
     options.statusCode = 404;
