@@ -2,6 +2,7 @@ var http = require("http");
 var handler = require("./request-handler");
 var initialize = require("./initialize.js");
 var utils = require( './http-helpers' );
+var archive = require( '../helpers/archive-helpers' );
 
 // Why do you think we have this here?
 // HINT: It has to do with what's in .gitignore
@@ -16,12 +17,17 @@ var routes = {
   //Dynamically add paths for sites that are archived
 };
 
+archive.readListOfUrls( ( sitesArray ) => {
+  sitesArray.forEach( ( site )=>{
+    addArchivedRoute( site );
+  } );
+} );
+
 var server = http.createServer(function(request, response){
-  // if(request.method === 'POST' ){
-  //   console.log('POSTING! from this url: ', request.url);
-  // } 
   if( routes[request.url] ) {
     routes[request.url](request, response);
+  } else if( routes[ request.url.slice(1) ] ){
+    routes[ request.url.slice(1) ](request, response);
   } else {
     utils.send404( response );
   }
@@ -34,6 +40,6 @@ if (module.parent) {
   console.log("Listening on http://" + ip + ":" + port);
 }
 
-exports.addArchivedRoute = ( route ) => {
+exports.addArchivedRoute = addArchivedRoute = ( route ) => {
   routes[route] = handler.handleRequest;
 };

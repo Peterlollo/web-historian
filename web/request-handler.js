@@ -5,9 +5,11 @@ var _ = require( 'underscore' );
 var server = require( './basic-server' );
 // require more modules/folders here!
 
+
 exports.serveIndex = function (req, res) {
   var INDEX = './index.html';
   var LOADING = './loading.html';
+
   var serve = ( asset ) => {
     var assetPath = path.join( archive.paths.siteAssets, asset );
     utils.serveAssets( res, assetPath );
@@ -18,15 +20,11 @@ exports.serveIndex = function (req, res) {
     var body = '';
     req.on('data', function(chunk) {
       body += chunk;
-      console.log('req.on : ', body);
     });
     req.on('end', function() {
-      console.log('first body : ', body);
       body = '' + body;
-      console.log('second body : ', body);
       //body = JSON.parse( body );
       var url = body.substr(4);
-      console.log('url : ', url);
       archive.isUrlInList( url, function( inTheList ) {
         if( inTheList ) {
           archive.isUrlArchived( url, function ( isArchived ) {
@@ -61,5 +59,12 @@ exports.serveCSS = function( req, res ) {
 };
 
 exports.handleRequest = function (req, res) {
-  res.end(archive.paths.list);
+  var url = req.url.slice(1); 
+  archive.isUrlArchived( url, ( isArchived ) => {
+    if( isArchived ) {
+      utils.serveAssets( res, path.join( archive.paths.archivedSites, './' + url ) );
+    } else {
+      utils.serveAssets( res, path.join( archive.paths.siteAssets, './loading.html'));
+    }
+  } );
 };

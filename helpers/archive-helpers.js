@@ -87,26 +87,27 @@ exports.isUrlArchived = function(targetUrl, callback) {
   //check whether targetURL is true or false
 };
 
-exports.downloadURL = function () {
-  //read a given site
-};
-
 exports.downloadUrls = function( arrayOfSites, callback ) {
 
   var doTheThing = ( site ) => {
     var httpSite = 'http://' + site;
     http.get( httpSite, ( res ) => {
-      console.log( `Got response: ${res.statusCode}` );
       var body = '';
-      res.on( 'data', function( chunk ) {
+      if( res.statusCode !== 200 ) return;
+      res.on( 'data', ( chunk ) => {
         body += chunk;
       } );
-      res.on('end', function(){
+      res.on( 'end', () => {
         fs.writeFile( path.join( paths.archivedSites, './' + site ), body, function( err, data ) {
           if( err ) throw new Error( 'Error in writing new site to archive' );
           if ( callback ) callback( site );
         } );
       } );
+      res.on( 'error', ( err ) => {
+        console.log( err, 'Failed to download url from ' + httpSite );
+      } );
+    } ).on( 'error', ( err ) => {
+      console.log( err, 'Failed to resolve DNS' );
     } );
   };
 
